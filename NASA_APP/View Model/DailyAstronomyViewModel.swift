@@ -24,14 +24,15 @@ final class DailyAstronomyViewModel {
         }
     }
     
-    func fetchNasaDataWithDate(dateString: String) {
-        apiService.getNasaPlanetaryDataWithDate(date: dateString) { [weak self] result in
+    func fetchNasaDataWithDate(updateDateString: String) {
+        apiService.getNasaPlanetaryDataWithDate(dateString: updateDateString) { [weak self] result in
             switch result {
             case .success(let newFetchedData):
                 self?.onDateChangedFetchedCompletion?(newFetchedData)
             case .failure(let error):
-                print("Error processing json data: \(error)")
+                print("Error processing json data: \(error.localizedDescription)")
             }
         }
     }
 }
+
