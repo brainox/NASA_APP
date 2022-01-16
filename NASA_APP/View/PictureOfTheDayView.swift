@@ -6,6 +6,7 @@
 //
 
 import UIKit
+import SDWebImage
 
 class PictureOfTheDayView: UIView {
     let dailyAstronomyVM = DailyAstronomyViewModel()
@@ -17,7 +18,20 @@ class PictureOfTheDayView: UIView {
         super.init(frame: .zero)
         backgroundColor = .white
         setUpViews()
-        //        populateViews()
+        
+        dailyAstronomyVM.fetchNasaData()
+        
+        dailyAstronomyVM.onLoadingfetchedCompletion = { [weak self] data in
+            DispatchQueue.main.async {
+                self?.titleLabel.text = data.title
+                self?.dateLabel.text = data.date
+                self?.explanationLabel.text = data.explanation
+                self?.imageView.sd_setImage(with: URL(string: data.url))
+            }
+        }
+        
+        
+        
     }
     
     required init?(coder: NSCoder) {
@@ -28,7 +42,6 @@ class PictureOfTheDayView: UIView {
         let label = UILabel()
         label.textColor = .label
         label.textAlignment = .center
-        label.text = "Astronomy Picture of the day"
         label.font = UIFont.boldSystemFont(ofSize: 20)
         label.sizeToFit()
         label.translatesAutoresizingMaskIntoConstraints = false
@@ -39,7 +52,6 @@ class PictureOfTheDayView: UIView {
         let label = UILabel()
         label.textColor = .label
         label.textAlignment = .center
-        //        label.text = "2022-01-14"
         label.font = UIFont.boldSystemFont(ofSize: 20)
         label.sizeToFit()
         label.translatesAutoresizingMaskIntoConstraints = false
@@ -48,24 +60,51 @@ class PictureOfTheDayView: UIView {
     
     private let imageView: UIImageView = {
         let imageView = UIImageView()
-        imageView.contentMode = .scaleAspectFit
+        imageView.contentMode =  UIView.ContentMode.scaleAspectFit
         imageView.backgroundColor = .systemBackground
-        imageView.clipsToBounds = true
-        imageView.image = UIImage(named: "sample")
+        imageView.frame.size.width = 20
+        imageView.frame.size.height = 20
         imageView.translatesAutoresizingMaskIntoConstraints = false
         return imageView
     }()
     
     private let explanationLabel: UILabel = {
         let label = UILabel()
-        label.textColor = .label
-        //        label.text = "Michael Joseph Jackson (August 29, 1958 – June 25, 2009) was an American singer, songwriter and dancer. Dubbed the , he is regarded as one of the most significant cultural figures of the 20th century. Over a four-decade career, his contributions to music, dance and fashion, along with his publicized personal life, made him a global figure in popular culture. Jackson influenced artists across many music genres; through stage and video performances, he popularized complicated dance moves such as the moonwalk, to which he gave the name, as well as the robot. He is the most awarded music artist in history.The eighth child of the Jackson family, Jackson made his professional debut in 1964 with his elder brothers Jackie, Tito, Jermaine and Marlon as a member of the Jackson 5 (later known as the Jacksons). Jackson began his solo career in 1971 while at Motown Records. He became a solo star with his 1979 album Off the Wall. His music videos, including those for from his 1982 album Thriller, are credited with breaking racial barriers and transforming the medium into an artform and promotional tool. He helped propel the success of MTV and continued to innovate with videos for the albums Bad (1987), Dangerous (1991) and HIStory: Past, Present and Future, Book I (1995). Thriller became the best-selling album of all time, while Bad was the first album to produce five U.S. Billboard Hot 100 number-one singles.[nb 1]From the late 1980s, Jackson became a figure of controversy and speculation due to his changing appearance, relationships, behavior and lifestyle. In 1993, he was accused of sexually abusing the child of a family friend. The lawsuit was settled out of civil court; Jackson was not indicted due to lack of evidence. In 2005, he was tried and acquitted of further child sexual abuse allegations and several other charges. In both cases, the FBI found no evidence of criminal conduct on Jackson's behalf in either case. In 2009, while preparing for a series of comeback concerts, This Is It, Jackson died from an overdose of propofol administered by his personal physician, Conrad Murray, who was convicted in 2011 of involuntary manslaughter."
         label.font = UIFont.boldSystemFont(ofSize: 15)
         label.sizeToFit()
         label.numberOfLines = 0
         label.translatesAutoresizingMaskIntoConstraints = false
         return label
     }()
+    
+    private let datePicker: UIDatePicker = {
+        let datePicker = UIDatePicker()
+        datePicker.preferredDatePickerStyle = .automatic
+        datePicker.datePickerMode = .date
+        datePicker.timeZone = NSTimeZone.local
+        datePicker.backgroundColor = UIColor.white
+        datePicker.addTarget(self, action: #selector(valueChanged), for: .valueChanged)
+        
+        
+        //Set minimum and Maximum Dates
+        let calendar = Calendar(identifier: .gregorian)
+        var comps = DateComponents()
+        comps.month = 1
+        let maxDate = calendar.date(byAdding: comps, to: Date())
+        comps.month = 0
+        comps.day = -1
+        let minDate = calendar.date(byAdding: comps, to: Date())
+        datePicker.maximumDate = maxDate
+        datePicker.minimumDate = minDate
+        return datePicker
+    }()
+    
+    
+    @objc func valueChanged(_ sender: UIDatePicker) {
+        let formatter = DateFormatter()
+        formatter.dateStyle = .short
+        print(formatter.string(from: datePicker.date))
+    }
     
     func setUpViews() {
         
@@ -75,6 +114,7 @@ class PictureOfTheDayView: UIView {
         contentView.addSubview(dateLabel)
         contentView.addSubview(imageView)
         contentView.addSubview(explanationLabel)
+        contentView.addSubview(datePicker)
         
         [
             scrollView,
@@ -97,39 +137,19 @@ class PictureOfTheDayView: UIView {
         contentView.centerXAnchor.constraint(equalTo: scrollView.centerXAnchor).isActive = true
         contentView.widthAnchor.constraint(equalTo: scrollView.widthAnchor).isActive = true
         
-        titleLabel.anchor(top: contentView.topAnchor, leading: contentView.leadingAnchor, bottom: nil, trailing: contentView.trailingAnchor, padding: UIEdgeInsets(top: 10, left: 10, bottom: 0, right: 10))
+//        datePicker.fillSuperview()
         
-        dateLabel.anchor(top: titleLabel.bottomAnchor, leading: contentView.leadingAnchor, bottom: nil, trailing: contentView.trailingAnchor, padding: UIEdgeInsets(top: 5, left: 10, bottom: 0, right: 10))
+        titleLabel.anchor(top: contentView.topAnchor, leading: contentView.leadingAnchor, bottom: nil, trailing: contentView.trailingAnchor, padding: UIEdgeInsets(top: 10, left: 20, bottom: 0, right: 20))
+
+        dateLabel.anchor(top: titleLabel.bottomAnchor, leading: contentView.leadingAnchor, bottom: nil, trailing: contentView.trailingAnchor, padding: UIEdgeInsets(top: 5, left: 20, bottom: 0, right: 20))
+
+        imageView.anchor(top: dateLabel.bottomAnchor, leading: contentView.leadingAnchor, bottom: nil, trailing: contentView.trailingAnchor, padding: UIEdgeInsets(top: 10, left: 20, bottom: 0, right: 20), size: CGSize(width: 0, height: 100))
         
-        imageView.anchor(top: dateLabel.bottomAnchor, leading: contentView.leadingAnchor, bottom: nil, trailing: contentView.trailingAnchor, padding: UIEdgeInsets(top: 10, left: 10, bottom: 0, right: 10), size: CGSize(width: 0, height: 200))
-        
-        explanationLabel.anchor(top: imageView.bottomAnchor, leading: contentView.leadingAnchor, bottom: contentView.bottomAnchor, trailing: contentView.trailingAnchor, padding: UIEdgeInsets(top: 30, left: 10, bottom: 0, right: 10))
-    }
-    
-    //    func setUpBinders() {
-    //        dailyAstronomyVM.error.bind { model in
-    //            self.titleLabel.text = self.dailyAstronomyVM.astronomyDetail?.title
-    //            self.dateLabel.text = self.dailyAstronomyVM.astronomyDetail?.date
-    //            self.imageView.image = UIImage(named: "sample")
-    //            self.explanationLabel.text = self.dailyAstronomyVM.astronomyDetail?.explanation
-    //        }
-    //
-    ////        dailyAstronomyVM.error.bind { model in
-    ////            self.titleLabel.text = model?.title
-    ////            self.dateLabel.text = model?.date
-    ////            self.imageView.image = UIImage(named: "sample")
-    ////            self.explanationLabel.text = model?.explanation
-    ////        }
-    //    }
-    
-    func populateViews() -> String {
-        DispatchQueue.main.async {
-            self.titleLabel.text = self.dailyAstronomyVM.astronomyDetail?.title
-            self.dateLabel.text = self.dailyAstronomyVM.astronomyDetail?.date
-            //                self?.dateLabel.text = self?.dailyAstronomyVM.date
-            self.explanationLabel.text = self.dailyAstronomyVM.astronomyDetail?.explanation
-        }
-        return self.dailyAstronomyVM.astronomyDetail?.explanation ?? "Nothing is printing"
-        
+        datePicker.anchor(top: imageView.bottomAnchor, leading: nil, bottom: nil, trailing: nil, padding: UIEdgeInsets(top: 10, left: 0, bottom: 0, right: 0))
+        datePicker.centerXInSuperview()
+
+        explanationLabel.anchor(top: datePicker.bottomAnchor, leading: contentView.leadingAnchor, bottom: contentView.bottomAnchor, trailing: contentView.trailingAnchor, padding: UIEdgeInsets(top: 30, left: 10, bottom: 0, right: 10))
     }
 }
+
+

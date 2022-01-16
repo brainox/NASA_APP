@@ -9,21 +9,26 @@ import Foundation
 
 final class DailyAstronomyViewModel {
     private var apiService = ApiService()
-    var astronomyDetail: NasaModel?
-    var date = ""
-    var completion: ( () -> Void)?
 
-//    var error: ObservableObject<NasaModel?> = ObservableObject(nil)
+    var onLoadingfetchedCompletion: ((NasaModel) -> Void)?
+    var onDateChangedFetchedCompletion: ((NasaModel) -> Void)?
     
     func fetchNasaData () {
         apiService.getNasaPlanetaryData { [weak self] result in
             switch result {
             case .success(let fetchedNasaData):
-//                self?.error.value = fetchedNasaData
-                self?.astronomyDetail = fetchedNasaData
-                
-                self?.date = fetchedNasaData.date
-                self?.completion?()
+                self?.onLoadingfetchedCompletion?(fetchedNasaData)    
+            case .failure(let error):
+                print("Error processing json data: \(error)")
+            }
+        }
+    }
+    
+    func fetchNasaDataWithDate(dateString: String) {
+        apiService.getNasaPlanetaryDataWithDate(date: dateString) { [weak self] result in
+            switch result {
+            case .success(let newFetchedData):
+                self?.onDateChangedFetchedCompletion?(newFetchedData)
             case .failure(let error):
                 print("Error processing json data: \(error)")
             }

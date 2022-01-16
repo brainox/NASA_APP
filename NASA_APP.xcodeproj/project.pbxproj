@@ -3,7 +3,7 @@
 	archiveVersion = 1;
 	classes = {
 	};
-	objectVersion = 50;
+	objectVersion = 52;
 	objects = {
 
 /* Begin PBXBuildFile section */
@@ -19,6 +19,10 @@
 		B47E134B27932EE600CFD7BE /* VerticalStackView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B47E134A27932EE600CFD7BE /* VerticalStackView.swift */; };
 		B47E134D27932F1500CFD7BE /* UIView+Layout.swift in Sources */ = {isa = PBXBuildFile; fileRef = B47E134C27932F1500CFD7BE /* UIView+Layout.swift */; };
 		B47E134F27932F3A00CFD7BE /* LayoutConstraaint.swift in Sources */ = {isa = PBXBuildFile; fileRef = B47E134E27932F3A00CFD7BE /* LayoutConstraaint.swift */; };
+		B499D709279452CB00F7F5EB /* DarkMode.swift in Sources */ = {isa = PBXBuildFile; fileRef = B499D708279452CB00F7F5EB /* DarkMode.swift */; };
+		B499D70F2794559800F7F5EB /* SDWebImage in Frameworks */ = {isa = PBXBuildFile; productRef = B499D70E2794559800F7F5EB /* SDWebImage */; };
+		B499D711279455B300F7F5EB /* HUD.swift in Sources */ = {isa = PBXBuildFile; fileRef = B499D710279455B300F7F5EB /* HUD.swift */; };
+		B499D7142794564A00F7F5EB /* ProgressHUD in Frameworks */ = {isa = PBXBuildFile; productRef = B499D7132794564A00F7F5EB /* ProgressHUD */; };
 		B4B461402793489F008D98AA /* ObservableObject.swift in Sources */ = {isa = PBXBuildFile; fileRef = B4B4613F2793489F008D98AA /* ObservableObject.swift */; };
 		B4B4614227934B6B008D98AA /* PictureOfTheDayView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B4B4614127934B6B008D98AA /* PictureOfTheDayView.swift */; };
 /* End PBXBuildFile section */
@@ -38,6 +42,8 @@
 		B47E134A27932EE600CFD7BE /* VerticalStackView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VerticalStackView.swift; sourceTree = "<group>"; };
 		B47E134C27932F1500CFD7BE /* UIView+Layout.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIView+Layout.swift"; sourceTree = "<group>"; };
 		B47E134E27932F3A00CFD7BE /* LayoutConstraaint.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LayoutConstraaint.swift; sourceTree = "<group>"; };
+		B499D708279452CB00F7F5EB /* DarkMode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DarkMode.swift; sourceTree = "<group>"; };
+		B499D710279455B300F7F5EB /* HUD.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HUD.swift; sourceTree = "<group>"; };
 		B4B4613F2793489F008D98AA /* ObservableObject.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ObservableObject.swift; sourceTree = "<group>"; };
 		B4B4614127934B6B008D98AA /* PictureOfTheDayView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PictureOfTheDayView.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -47,6 +53,8 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				B499D70F2794559800F7F5EB /* SDWebImage in Frameworks */,
+				B499D7142794564A00F7F5EB /* ProgressHUD in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -143,6 +151,8 @@
 				B47E134A27932EE600CFD7BE /* VerticalStackView.swift */,
 				B47E134C27932F1500CFD7BE /* UIView+Layout.swift */,
 				B47E134E27932F3A00CFD7BE /* LayoutConstraaint.swift */,
+				B499D708279452CB00F7F5EB /* DarkMode.swift */,
+				B499D710279455B300F7F5EB /* HUD.swift */,
 			);
 			path = Helpers;
 			sourceTree = "<group>";
@@ -163,6 +173,10 @@
 			dependencies = (
 			);
 			name = NASA_APP;
+			packageProductDependencies = (
+				B499D70E2794559800F7F5EB /* SDWebImage */,
+				B499D7132794564A00F7F5EB /* ProgressHUD */,
+			);
 			productName = NASA_APP;
 			productReference = B47E131827918E6700CFD7BE /* NASA_APP.app */;
 			productType = "com.apple.product-type.application";
@@ -190,6 +204,10 @@
 				Base,
 			);
 			mainGroup = B47E130F27918E6700CFD7BE;
+			packageReferences = (
+				B499D70D2794559800F7F5EB /* XCRemoteSwiftPackageReference "SDWebImage" */,
+				B499D7122794564A00F7F5EB /* XCRemoteSwiftPackageReference "ProgressHUD" */,
+			);
 			productRefGroup = B47E131927918E6700CFD7BE /* Products */;
 			projectDirPath = "";
 			projectRoot = "";
@@ -217,12 +235,14 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				B499D709279452CB00F7F5EB /* DarkMode.swift in Sources */,
 				B47E134D27932F1500CFD7BE /* UIView+Layout.swift in Sources */,
 				B47E134F27932F3A00CFD7BE /* LayoutConstraaint.swift in Sources */,
 				B47E132027918E6700CFD7BE /* ViewController.swift in Sources */,
 				B47E131C27918E6700CFD7BE /* AppDelegate.swift in Sources */,
 				B47E1346279322DA00CFD7BE /* ApiService.swift in Sources */,
 				B4B461402793489F008D98AA /* ObservableObject.swift in Sources */,
+				B499D711279455B300F7F5EB /* HUD.swift in Sources */,
 				B4B4614227934B6B008D98AA /* PictureOfTheDayView.swift in Sources */,
 				B47E131E27918E6700CFD7BE /* SceneDelegate.swift in Sources */,
 				B47E1348279328B000CFD7BE /* DailyAstronomyViewModel.swift in Sources */,
@@ -429,6 +449,38 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
+
+/* Begin XCRemoteSwiftPackageReference section */
+		B499D70D2794559800F7F5EB /* XCRemoteSwiftPackageReference "SDWebImage" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/SDWebImage/SDWebImage.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 5.12.2;
+			};
+		};
+		B499D7122794564A00F7F5EB /* XCRemoteSwiftPackageReference "ProgressHUD" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/relatedcode/ProgressHUD.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 13.6.1;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		B499D70E2794559800F7F5EB /* SDWebImage */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = B499D70D2794559800F7F5EB /* XCRemoteSwiftPackageReference "SDWebImage" */;
+			productName = SDWebImage;
+		};
+		B499D7132794564A00F7F5EB /* ProgressHUD */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = B499D7122794564A00F7F5EB /* XCRemoteSwiftPackageReference "ProgressHUD" */;
+			productName = ProgressHUD;
+		};
+/* End XCSwiftPackageProductDependency section */
 	};
 	rootObject = B47E131027918E6700CFD7BE /* Project object */;
 }
