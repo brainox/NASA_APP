@@ -13,8 +13,6 @@ class ApiService {
     func getNasaPlanetaryData(completion: @escaping (Result<NasaModel, Error>) -> Void) {
         let nasePlanetaryApiURL = "https://api.nasa.gov/planetary/apod?api_key=oULyHsHwdAadptJq30yF7X9eGxFqkCsycsIATpMy"
         
-        
-        
         guard let url = URL(string: nasePlanetaryApiURL) else { return }
         
         dataTask = URLSession.shared.dataTask(with: url, completionHandler: { data, response, error in
@@ -81,7 +79,6 @@ class ApiService {
                 
                 
                 completion(.success(jsonData))
-                
                 
                 
             } catch let error {

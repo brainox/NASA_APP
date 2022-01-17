@@ -14,8 +14,8 @@ final class HUD {
             ProgressHUD.show(status)
             ProgressHUD.animationType = .circleStrokeSpin
             ProgressHUD.colorBackground = .black
-            ProgressHUD.colorHUD = foodlyPurple!
-            ProgressHUD.colorAnimation = foodlyPurple!
+            ProgressHUD.colorHUD = .darkGray
+            ProgressHUD.colorAnimation = .darkGray
         }
     }
     

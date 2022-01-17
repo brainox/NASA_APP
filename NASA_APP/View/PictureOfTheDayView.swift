@@ -7,12 +7,16 @@
 
 import UIKit
 import SDWebImage
+import YouTubeiOSPlayerHelper
+import ProgressHUD
+
 
 class PictureOfTheDayView: UIView {
     let dailyAstronomyVM = DailyAstronomyViewModel()
+    var switchImageVideoView = UIView()
     
-    private let scrollView = UIScrollView()
-    private let contentView = UIView()
+    private var scrollView = UIScrollView()
+    private var contentView = UIView()
     
     override init(frame: CGRect) {
         super.init(frame: .zero)
@@ -23,13 +27,44 @@ class PictureOfTheDayView: UIView {
         setUpViews()
         dailyAstronomyVM.fetchNasaData()
         
+        datePicker.isHidden = true
+        
+        HUD.show(status: "Loading...")
         dailyAstronomyVM.onLoadingfetchedCompletion = { [weak self] data in
+            
+            self?.setViewsToModel(model: data)
+    
             DispatchQueue.main.async {
-                self?.titleLabel.text = data.title
-                self?.dateLabel.text = data.date
-                self?.explanationLabel.text = data.explanation
-                self?.imageView.sd_setImage(with: URL(string: data.url))
+                self?.datePicker.isHidden = false
             }
+        }
+    }
+    
+    func setViewsToModel(model: NasaModel) {
+        DispatchQueue.main.async {
+            self.titleLabel.text = model.title
+            self.dateLabel.text = model.date
+            self.explanationLabel.text = model.explanation
+            
+            guard let fetchedUrl = URL(string: model.url) else { return }
+    
+            if model.mediaType == MediaType.video.rawValue {
+                self.youtubePlayerView.load(URLRequest(url: fetchedUrl))
+                self.youtubePlayerView.isHidden = false
+                self.imageView.isHidden = true
+            } else {
+                self.imageView.sd_setImage(with: fetchedUrl)
+                self.imageView.sd_setImage(with: fetchedUrl, completed: { image, error, cache, urls in
+                    if (error != nil) {
+                        self.imageView.image = UIImage(named: "placeholder")
+                    } else {
+                        self.imageView.image = image
+                    }
+                })
+                self.youtubePlayerView.isHidden = true
+                self.imageView.isHidden = false
+            }
+            HUD.hide()
         }
     }
     
@@ -37,19 +72,21 @@ class PictureOfTheDayView: UIView {
         fatalError("init(coder:) has not been implemented")
     }
     
-    func viewToReload() {
+    func loadViewFromApi() {
+        HUD.show(status: "Loading...")
         dailyAstronomyVM.onDateChangedFetchedCompletion = { [weak self] data in
-            DispatchQueue.main.async {
-                self?.titleLabel.text = data.title
-                self?.dateLabel.text = data.date
-                self?.explanationLabel.text = data.explanation
-                self?.imageView.sd_setImage(with: URL(string: data.url))
-                    self?.layoutIfNeeded()
-            }
+            self?.setViewsToModel(model: data)
+        }
+        DispatchQueue.main.async {
+            self.layoutIfNeeded()
         }
     }
     
-    private let titleLabel: UILabel = {
+    func viewToReload() {
+        loadViewFromApi()
+    }
+    
+    lazy var  titleLabel: UILabel = {
         let label = UILabel()
         label.textColor = .label
         label.textAlignment = .center
@@ -59,7 +96,7 @@ class PictureOfTheDayView: UIView {
         return label
     }()
     
-    let dateLabel: UILabel = {
+    lazy var  dateLabel: UILabel = {
         let label = UILabel()
         label.textColor = .label
         label.textAlignment = .center
@@ -69,17 +106,22 @@ class PictureOfTheDayView: UIView {
         return label
     }()
     
-    private let imageView: UIImageView = {
+    lazy var youtubePlayerView: WKWebView = {
+        let youtubeView = WKWebView()
+        youtubeView.translatesAutoresizingMaskIntoConstraints = false
+        return youtubeView
+    }()
+    
+    lazy var  imageView: UIImageView = {
         let imageView = UIImageView()
         imageView.contentMode =  UIView.ContentMode.scaleAspectFit
-        imageView.backgroundColor = .systemBackground
         imageView.frame.size.width = 20
         imageView.frame.size.height = 20
         imageView.translatesAutoresizingMaskIntoConstraints = false
         return imageView
     }()
     
-    private let explanationLabel: UILabel = {
+    lazy var  explanationLabel: UILabel = {
         let label = UILabel()
         label.font = UIFont.boldSystemFont(ofSize: 15)
         label.sizeToFit()
@@ -88,7 +130,7 @@ class PictureOfTheDayView: UIView {
         return label
     }()
     
-    private let datePicker: UIDatePicker = {
+    lazy var  datePicker: UIDatePicker = {
         let datePicker = UIDatePicker()
         datePicker.preferredDatePickerStyle = .automatic
         datePicker.datePickerMode = .date
@@ -108,20 +150,6 @@ class PictureOfTheDayView: UIView {
         datePicker.minimumDate = minDate
         return datePicker
     }()
-    
-    
-    @objc func valueChanged(sender: UIDatePicker) {
-        let formatter = DateFormatter()
-        formatter.dateStyle = .short
-        formatter.dateFormat = "MM/dd/yyyy"
-        
-        let pickedDate = formatter.string(from: sender.date)
-        
-        let date = formatter.date(from: pickedDate)
-        formatter.dateFormat = "yyyy-MM-dd"
-        formatter.dateFormat = "yyyy-MM-dd"
-        let resultString = formatter.string(from: date!)
-    }
     
     @objc func handleDismissingDatePicker() {
         datePicker.resignFirstResponder()
@@ -149,6 +177,7 @@ class PictureOfTheDayView: UIView {
         contentView.addSubview(titleLabel)
         contentView.addSubview(dateLabel)
         contentView.addSubview(imageView)
+        contentView.addSubview(youtubePlayerView)
         contentView.addSubview(explanationLabel)
         contentView.addSubview(datePicker)
         
@@ -158,6 +187,7 @@ class PictureOfTheDayView: UIView {
             titleLabel,
             dateLabel,
             imageView,
+            switchImageVideoView,
             explanationLabel
         ].forEach {
             $0.translatesAutoresizingMaskIntoConstraints = false
@@ -178,12 +208,22 @@ class PictureOfTheDayView: UIView {
         
         dateLabel.anchor(top: titleLabel.bottomAnchor, leading: contentView.leadingAnchor, bottom: nil, trailing: contentView.trailingAnchor, padding: UIEdgeInsets(top: 5, left: 20, bottom: 0, right: 20))
         
-        imageView.anchor(top: dateLabel.bottomAnchor, leading: contentView.leadingAnchor, bottom: nil, trailing: contentView.trailingAnchor, padding: UIEdgeInsets(top: 10, left: 20, bottom: 0, right: 20), size: CGSize(width: 0, height: 100))
-        
         datePicker.centerXInSuperview()
-        datePicker.anchor(top: imageView.bottomAnchor, leading: nil, bottom: nil, trailing: nil, padding: UIEdgeInsets(top: 10, left: 10, bottom: 10, right: 10))
         
-        explanationLabel.anchor(top: datePicker.bottomAnchor, leading: contentView.leadingAnchor, bottom: contentView.bottomAnchor, trailing: contentView.trailingAnchor, padding: UIEdgeInsets(top: 30, left: 10, bottom: 0, right: 10))
+        datePicker.anchor(top: dateLabel.bottomAnchor, leading: nil, bottom: nil, trailing: nil, padding: UIEdgeInsets(top: 20, left: 0, bottom: 0, right: 0))
+        
+        imageView.anchor(top: datePicker.bottomAnchor, leading: contentView.leadingAnchor, bottom: nil, trailing: contentView.trailingAnchor, padding: UIEdgeInsets(top: 20, left: 20, bottom: 0, right: 20), size: CGSize(width: 0, height: 250))
+        
+        youtubePlayerView.anchor(top: datePicker.bottomAnchor, leading: contentView.leadingAnchor, bottom: nil, trailing: contentView.trailingAnchor, padding: UIEdgeInsets(top: 10, left: 20, bottom: 0, right: 20), size: CGSize(width: 0, height: 250))
+        
+        explanationLabel.anchor(top: imageView.isHidden == true ? youtubePlayerView.bottomAnchor : imageView.bottomAnchor, leading: contentView.leadingAnchor, bottom: contentView.bottomAnchor, trailing: contentView.trailingAnchor, padding: UIEdgeInsets(top: 30, left: 10, bottom: 0, right: 10))
+        
+        self.layoutIfNeeded()
+        self.setNeedsLayout()
     }
 }
 
+enum MediaType: String {
+    case video
+    case image
+}

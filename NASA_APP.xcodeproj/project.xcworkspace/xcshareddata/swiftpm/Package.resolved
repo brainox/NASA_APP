@@ -18,6 +18,15 @@
           "revision": "0fff0d7505b5306348263ea64fcc561253bbeb21",
           "version": "5.12.2"
         }
+      },
+      {
+        "package": "YouTubeiOSPlayerHelper",
+        "repositoryURL": "https://github.com/youtube/youtube-ios-player-helper.git",
+        "state": {
+          "branch": null,
+          "revision": "f57129cd4380ec0a74dd3a59da3270a1d653d59b",
+          "version": "1.0.4"
+        }
       }
     ]
   },
